@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>企业项目管理系统 - 商务版</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI","Microsoft YaHei",sans-serif;}
+body{background:#f5f7fa;color:#334155;}
+.header{background:linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);color:white;padding:16px 24px;font-size:18px;font-weight:600;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);}
+.container{max-width:100%;margin:0;padding:0;display:flex;}
+.sidebar{width:260px;background:#1e3a5f;height:calc(100vh - 60px);padding:20px 0;box-shadow:4px 0 10px rgba(0,0,0,0.1);flex-shrink:0;overflow-y:auto;}
+.sidebar-menu{list-style:none;}
+.sidebar-menu li{margin-bottom:4px;}
+.sidebar-menu a{display:block;padding:14px 24px;color:#cbd5e1;text-decoration:none;border-radius:0 8px 8px 0;transition:all 0.3s;margin-right:10px;font-weight:500;}
+.sidebar-menu a:hover{background:#2c5282;color:white;}
+.sidebar-menu a.active{background:white;color:#1e3a5f;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.dropdown{position:relative;}
+.dropdown-toggle{display:flex;justify-content:space-between;align-items:center;}
+.dropdown-menu{display:none;list-style:none;background:#254670;margin:0;padding:0;border-radius:0 0 8px 0;}
+.dropdown-menu li{margin:0;}
+.dropdown-menu a{padding:12px 36px;border-radius:0;font-size:14px;}
+.dropdown:hover .dropdown-menu{display:block;}
+.content{flex:1;padding:28px;max-width:calc(100% - 260px);overflow:auto;height:calc(100vh - 60px);}
+
+/* 登录框优化 */
+.login-box{max-width:440px;background:white;margin:80px auto;padding:48px;border-radius:16px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);border:1px solid #e2e8f0;}
+.login-box h2{margin-bottom:32px;text-align:center;color:#1e3a5f;font-size:28px;font-weight:700;}
+.login-tips{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:16px;margin-bottom:24px;font-size:13px;color:#0369a1;}
+.login-tips ul{margin-left:16px;margin-top:8px;}
+.login-tips li{margin:4px 0;}
+.form-input{width:100%;padding:14px 18px;margin-bottom:16px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;transition:all 0.2s;background:#fafafa;}
+.form-input:focus{outline:none;border-color:#3b82f6;background:white;box-shadow:0 0 0 4px rgba(59,130,246,0.1);}
+.form-input::placeholder{color:#94a3b8;}
+.btn{width:100%;padding:14px 18px;background:linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);color:white;border:none;border-radius:10px;font-size:16px;cursor:pointer;transition:all 0.2s;font-weight:600;box-shadow:0 4px 6px -1px rgba(30,58,95,0.2);}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 8px -1px rgba(30,58,95,0.3);}
+.btn-sm{padding:8px 16px;font-size:13px;width:auto;border-radius:6px;}
+.btn-danger{background:linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);box-shadow:0 4px 6px -1px rgba(220,38,38,0.2);}
+.btn-danger:hover{background:linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);}
+.btn-success{background:linear-gradient(135deg, #059669 0%, #047857 100%);box-shadow:0 4px 6px -1px rgba(5,150,105,0.2);}
+.btn-success:hover{background:linear-gradient(135deg, #047857 0%, #065f46 100%);}
+.btn-warning{background:linear-gradient(135deg, #d97706 0%, #b45309 100%);color:white;}
+.btn-secondary{background:linear-gradient(135deg, #64748b 0%, #475569 100%);}
+.btn-info{background:linear-gradient(135deg, #0284c7 0%, #0369a1 100%);color:white;}
+
+.page{display:none;}
+.card{background:white;padding:28px;border-radius:12px;margin-bottom:24px;box-shadow:0 1px 3px rgba(0,0,0,0.1);border:1px solid #e2e8f0;}
+.card h3{margin-bottom:20px;font-size:18px;color:#1e3a5f;border-bottom:2px solid #f1f5f9;padding-bottom:16px;display:flex;align-items:center;gap:10px;font-weight:700;}
+
+/* 项目列表 */
+.project-item{padding:20px;background:#f8fafc;border-radius:12px;margin-bottom:12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s;border-left:4px solid transparent;box-shadow:0 1px 2px rgba(0,0,0,0.05);}
+.project-item:hover{background:#f1f5f9;border-left-color:#3b82f6;transform:translateX(4px);box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);}
+.project-meta{font-size:13px;color:#64748b;margin-top:4px;}
+.project-amount{font-size:20px;font-weight:700;color:#dc2626;}
+
+/* 文件管理优化 */
+.file-table{width:100%;border-collapse:collapse;margin-top:16px;}
+.file-table th{background:#f8fafc;padding:14px;text-align:left;font-weight:600;color:#475569;border-bottom:2px solid #e2e8f0;font-size:13px;}
+.file-table td{padding:14px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+.file-table tr:hover{background:#f8fafc;}
+.file-icon{width:40px;height:40px;background:#dbeafe;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-right:12px;}
+.file-name{font-weight:600;color:#1e293b;}
+.file-size{color:#64748b;font-size:13px;}
+.file-actions{display:flex;gap:8px;}
+
+.upload-area{border:2px dashed #cbd5e1;padding:32px;text-align:center;border-radius:12px;cursor:pointer;background:#f8fafc;transition:all 0.3s;margin-bottom:20px;}
+.upload-area:hover{border-color:#3b82f6;background:#eff6ff;}
+.upload-area-text{color:#64748b;font-size:14px;margin-top:8px;}
+
+/* 支出管理优化 */
+.expense-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.expense-form{background:#f8fafc;padding:20px;border-radius:10px;margin-bottom:20px;border:1px solid #e2e8f0;}
+.expense-form-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-bottom:16px;}
+.expense-form-group label{display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:6px;}
+.expense-table{width:100%;border-collapse:collapse;}
+.expense-table th{background:#f1f5f9;padding:12px;text-align:left;font-weight:600;color:#475569;border-bottom:2px solid #e2e8f0;font-size:13px;}
+.expense-table td{padding:12px;border-bottom:1px solid #f1f5f9;}
+.expense-table tr:hover{background:#f8fafc;}
+.expense-category{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+.expense-category-office{background:#fef3c7;color:#92400e;}
+.expense-category-travel{background:#dbeafe;color:#1e40af;}
+.expense-category-meal{background:#fce7f3;color:#be185d;}
+.expense-category-other{background:#f3f4f6;color:#374151;}
+.expense-amount{color:#dc2626;font-weight:700;}
+
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:none;justify-content:center;align-items:center;z-index:99;backdrop-filter:blur(4px);}
+.modal-box{background:white;width:92%;max-width:520px;padding:32px;border-radius:16px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);}
+.modal-box h3{margin-bottom:24px;color:#1e293b;font-size:20px;font-weight:700;}
+.modal-close{float:right;font-size:24px;color:#94a3b8;cursor:pointer;margin-top:-8px;}
+.modal-close:hover{color:#64748b;}
+
+.back{color:#1e3a5f;cursor:pointer;margin-bottom:24px;font-size:15px;display:inline-flex;align-items:center;gap:8px;font-weight:600;transition:all 0.2s;}
+.back:hover{transform:translateX(-4px);}
+.text-sm{font-size:13px;color:#64748b;}
+.badge{display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;margin-left:8px;}
+
+/* 商务记账系统 */
+.accounting-container{background:white;border-radius:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);overflow:hidden;}
+.accounting-header{background:linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);color:white;padding:24px 32px;display:flex;justify-content:space-between;align-items:center;}
+.accounting-title{font-size:24px;font-weight:700;}
+.accounting-subtitle{font-size:14px;opacity:0.9;margin-top:6px;}
+.accounting-stats{display:flex;gap:24px;margin-top:24px;}
+.stat-card{background:white;padding:20px;border-radius:10px;flex:1;box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+.stat-label{font-size:13px;color:#64748b;margin-bottom:4px;}
+.stat-value{font-size:24px;font-weight:700;color:#1e293b;}
+.stat-value.income{color:#059669;}
+.stat-value.expense{color:#dc2626;}
+.stat-value.profit{color:#1e3a5f;}
+
+.transaction-form{background:#f8fafc;padding:24px;border-bottom:1px solid #e2e8f0;}
+.form-row{display:grid;grid-template-columns:120px 1fr 1fr 1fr 1fr auto;gap:12px;align-items:end;margin-bottom:16px;}
+@media(max-width:1200px){.form-row{grid-template-columns:1fr 1fr;}}
+@media(max-width:768px){.form-row{grid-template-columns:1fr;}}
+
+.transaction-table{width:100%;border-collapse:collapse;}
+.transaction-table th{background:#f1f5f9;padding:16px;text-align:left;font-weight:600;color:#475569;border-bottom:2px solid #e2e8f0;}
+.transaction-table td{padding:16px;border-bottom:1px solid #f1f5f9;}
+.transaction-table tr:hover{background:#f8fafc;}
+.type-badge{display:inline-block;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;}
+.type-income{background:#d1fae5;color:#065f46;}
+.type-expense{background:#fee2e2;color:#991b1b;}
+.amount-income{color:#059669;font-weight:700;font-size:16px;}
+.amount-expense{color:#dc2626;font-weight:700;font-size:16px;}
+
+.filter-bar{display:flex;gap:12px;margin-bottom:20px;padding:16px;background:#f8fafc;border-radius:10px;align-items:center;flex-wrap:wrap;}
+.filter-btn{padding:8px 16px;border:1px solid #e2e8f0;background:white;border-radius:8px;cursor:pointer;transition:all 0.2s;font-size:13px;}
+.filter-btn:hover{border-color:#3b82f6;}
+.filter-btn.active{background:#3b82f6;color:white;border-color:#3b82f6;}
+
+/* 用户管理优化 */
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px;}
+.user-card{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:24px;transition:all 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+.user-card:hover{box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);transform:translateY(-2px);}
+.user-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;}
+.user-info{display:flex;align-items:center;gap:16px;}
+.user-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#1e3a5f,#3b82f6);color:white;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;box-shadow:0 4px 6px -1px rgba(30,58,95,0.2);}
+.user-meta{flex:1;}
+.user-name{font-size:18px;font-weight:700;color:#1e293b;margin-bottom:4px;}
+.user-role{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;border-radius:20px;font-weight:600;}
+.role-admin{background:#fee2e2;color:#991b1b;}
+.role-finance{background:#dbeafe;color:#1e40af;}
+.role-user{background:#d1fae5;color:#065f46;}
+.user-details{margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;}
+.user-detail-item{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;}
+.user-detail-label{color:#64748b;}
+.user-detail-value{color:#334155;font-weight:600;}
+.user-actions{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;}
+.action-btn{padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;display:inline-flex;align-items:center;gap:6px;}
+.action-btn:hover{transform:translateY(-1px);box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);}
+.btn-edit{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
+.btn-edit:hover{background:#dbeafe;}
+.btn-delete{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;}
+.btn-delete:hover{background:#fee2e2;}
+.btn-disabled{background:#f3f4f6;color:#9ca3af;border:1px solid #e5e7eb;cursor:not-allowed;opacity:0.6;}
+
+/* 编辑用户模态框优化 */
+.user-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:640px){.user-form-grid{grid-template-columns:1fr;}}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:6px;}
+.form-group input,.form-group select{width:100%;padding:12px 16px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;transition:all 0.2s;}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 4px rgba(59,130,246,0.1);}
+.form-hint{font-size:12px;color:#64748b;margin-top:4px;}
+
+.security-badge{background:rgba(255,255,255,0.2);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+
+@media (max-width:768px){
+  .container{flex-direction:column;}
+  .sidebar{width:100%;height:auto;}
+  .content{max-width:100%;height:auto;padding:16px;}
+  .user-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span>🏢 企业项目管理系统 - 商务版</span>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span id="currentUserDisplay"></span>
+    <span id="securityLevel" style="display:none;" class="security-badge">🔒 安全模式</span>
+  </div>
+</div>
+
+<!-- 登录页面 -->
+<div class="login-box page" id="loginPage" style="display:block;">
+  <h2>🔐 系统登录</h2>
+  <div class="login-tips">
+    <strong>💡 登录提示：</strong>
+    <ul>
+      <li>管理员账号：Admin / 123456</li>
+      <li>安全密码：888888（记账功能需要）</li>
+      <li>普通用户请联系管理员开通账号</li>
+    </ul>
+  </div>
+  <input class="form-input" id="loginUser" placeholder="请输入用户名">
+  <input class="form-input" id="loginPwd" type="password" placeholder="请输入密码">
+  <button class="btn" onclick="userLogin()">安全登录</button>
+  <div style="text-align:center;margin-top:20px;font-size:13px;color:#64748b;">
+    © 2026 企业项目管理系统 · 商务版
+  </div>
+</div>
+
+<!-- 主界面 -->
+<div class="page" id="mainPage" style="display:none;">
+  <div class="container">
+    <!-- 左侧菜单 -->
+    <div class="sidebar">
+      <ul class="sidebar-menu">
+        <li class="dropdown">
+          <a href="javascript:void(0)" class="dropdown-toggle">📊 业务分类 ▼</a>
+          <ul class="dropdown-menu">
+            <li><a href="javascript:goBusiness('lm')">🎪 朗鸣会展</a></li>
+            <li><a href="javascript:goBusiness('ch')">🏢 创河企服</a></li>
+          </ul>
+        </li>
+        <li><a href="javascript:checkAccountingAccess()" id="nav-accounting">💰 商务记账</a></li>
+        <li><a href="javascript:go('recyclePage')" id="nav-recycle">🗑️ 回收站</a></li>
+        <li><a href="javascript:go('userPage')" id="nav-user">👥 账号管理</a></li>
+        <li><a href="javascript:logout()">🚪 退出系统</a></li>
+      </ul>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="content">
+      <!-- 业务页面 -->
+      <div id="businessPage" class="page-block">
+        <div style="margin-bottom:24px;padding:20px 24px;background:linear-gradient(135deg,#1e3a5f 0%,#2c5282 100%);border-radius:12px;color:white;display:flex;align-items:center;justify-content:space-between;box-shadow:0 10px 15px -3px rgba(30,58,95,0.3);">
+          <div>
+            <div style="font-size:13px;opacity:0.9;margin-bottom:4px;">当前业务板块</div>
+            <div style="font-size:24px;font-weight:700;" id="businessTitle">🎪 朗鸣会展</div>
+          </div>
+          <div style="font-size:48px;opacity:0.2;">🏢</div>
+        </div>
+        <button class="btn" onclick="showModal()" style="margin-bottom:20px;width:auto;display:inline-flex;align-items:center;gap:8px;">
+          <span>➕</span> 创建新项目
+        </button>
+        <div id="projectList"></div>
+      </div>
+
+      <!-- 商务记账页面 -->
+      <div id="accountingPage" class="page-block" style="display:none;">
+        <div class="back" onclick="go('businessPage')">← 返回业务首页</div>
+
+        <div class="accounting-container">
+          <div class="accounting-header">
+            <div>
+              <div class="accounting-title">💰 商务记账系统</div>
+              <div class="accounting-subtitle">简洁高效的商户收支管理工具</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:13px;opacity:0.9;">当前账期</div>
+              <div style="font-size:20px;font-weight:700;" id="accountingPeriod">2026年4月</div>
+            </div>
+          </div>
+
+          <!-- 统计卡片 -->
+          <div style="padding:24px 32px;background:#f8fafc;">
+            <div class="accounting-stats">
+              <div class="stat-card">
+                <div class="stat-label">本月收入</div>
+                <div class="stat-value income" id="statIncome">¥0.00</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">本月支出</div>
+                <div class="stat-value expense" id="statExpense">¥0.00</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">本月结余</div>
+                <div class="stat-value profit" id="statProfit">¥0.00</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 记账表单 -->
+          <div class="transaction-form">
+            <h4 style="margin-bottom:20px;color:#1e293b;font-size:16px;font-weight:700;">📝 记一笔</h4>
+            <div class="form-row">
+              <div>
+                <label style="font-size:13px;font-weight:600;color:#475569;margin-bottom:6px;display:block;">收支类型</label>
+                <select id="transType" class="form-input" style="margin-bottom:0;">
+                  <option value="income">📈 收入</option>
+                  <option value="expense">📉 支出</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:13px;font-weight:600;color:#475569;margin-bottom:6px;display:block;">日期</label>
+                <input type="date" id="transDate" class="form-input" style="margin-bottom:0;">
+              </div>
+              <div>
+                <label style="font-size:13px;font-weight:600;color:#475569;margin-bottom:6px;display:block;">分类</label>
+                <select id="transCategory" class="form-input" style="margin-bottom:0;">
+                  <option value="sales">销售收入</option>
+                  <option value="service">服务收入</option>
+                  <option value="other_income">其他收入</option>
+                  <option value="purchase">采购支出</option>
+                  <option value="salary">工资薪金</option>
+                  <option value="rent">房租水电</option>
+                  <option value="office">办公费用</option>
+                  <option value="travel">差旅交通</option>
+                  <option value="meal">业务招待</option>
+                  <option value="other_expense">其他支出</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:13px;font-weight:600;color:#475569;margin-bottom:6px;display:block;">金额（元）</label>
+                <input type="number" id="transAmount" class="form-input" placeholder="0.00" style="margin-bottom:0;">
+              </div>
+              <div>
+                <label style="font-size:13px;font-weight:600;color:#475569;margin-bottom:6px;display:block;">经手人</label>
+                <input type="text" id="transHandler" class="form-input" placeholder="经办人姓名" style="margin-bottom:0;">
+              </div>
+              <button class="btn btn-success" onclick="addTransaction()" style="height:46px;">添加</button>
+            </div>
+            <div style="margin-top:12px;">
+              <label style="font-size:13px;font-weight:600;color:#475569;margin-bottom:6px;display:block;">备注说明</label>
+              <input type="text" id="transNote" class="form-input" placeholder="请输入交易备注信息..." style="margin-bottom:0;">
+            </div>
+          </div>
+
+          <!-- 筛选栏 -->
+          <div style="padding:0 32px;">
+            <div class="filter-bar">
+              <span style="font-weight:600;color:#475569;font-size:14px;">筛选：</span>
+              <button class="filter-btn active" onclick="filterTransactions('all')">全部</button>
+              <button class="filter-btn" onclick="filterTransactions('income')">收入</button>
+              <button class="filter-btn" onclick="filterTransactions('expense')">支出</button>
+              <input type="month" id="filterMonth" class="form-input" style="width:auto;margin-bottom:0;margin-left:auto;" onchange="renderTransactions()">
+            </div>
+          </div>
+
+          <!-- 交易明细表 -->
+          <div style="padding:0 32px 32px;">
+            <table class="transaction-table">
+              <thead>
+                <tr>
+                  <th>日期</th>
+                  <th>类型</th>
+                  <th>分类</th>
+                  <th>金额</th>
+                  <th>经手人</th>
+                  <th>备注</th>
+                  <th style="text-align:center;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="transactionList"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 回收站 -->
+      <div id="recyclePage" class="page-block" style="display:none;">
+        <div class="card">
+          <h3>🗑️ 回收站</h3>
+          <div id="recycleList"></div>
+        </div>
+      </div>
+
+      <!-- 用户管理 -->
+      <div id="userPage" class="page-block" style="display:none;">
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="padding:24px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="margin:0;border:none;padding:0;">👥 账号管理中心</h3>
+            <button class="btn btn-success" onclick="showAddUserModal()" style="width:auto;padding:10px 20px;">➕ 新增用户</button>
+          </div>
+          <div id="userList" style="padding:24px;"></div>
+        </div>
+      </div>
+
+      <!-- 项目详情 -->
+      <div id="detailPage" class="page-block" style="display:none;">
+        <div class="back" onclick="go('businessPage')">← 返回项目列表</div>
+        <h2 id="detailTitle" style="margin-bottom:8px;color:#1e293b;font-size:24px;"></h2>
+        <p class="text-sm" id="detailInfo" style="margin-bottom:24px;"></p>
+
+        <!-- 项目资料 -->
+        <div class="card">
+          <h3>📁 项目资料管理</h3>
+          <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div style="font-size:32px;margin-bottom:8px;">📤</div>
+            <div style="font-weight:600;color:#1e293b;">点击上传项目资料</div>
+            <div class="upload-area-text">支持 PDF、Word、Excel、图片等格式</div>
+            <input type="file" id="fileInput" style="display:none;" multiple onchange="uploadFiles()">
+          </div>
+          <table class="file-table">
+            <thead>
+              <tr>
+                <th style="width:50px;"></th>
+                <th>文件名</th>
+                <th>大小</th>
+                <th>上传时间</th>
+                <th style="text-align:center;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="fileList"></tbody>
+          </table>
+        </div>
+
+        <!-- 项目支出 -->
+        <div class="card">
+          <h3>💰 项目支出管理</h3>
+          <div class="expense-form">
+            <h4 style="margin-bottom:16px;font-size:14px;color:#475569;">➕ 添加支出记录</h4>
+            <div class="expense-form-grid">
+              <div class="expense-form-group">
+                <label>支出日期 *</label>
+                <input type="date" id="expenseDate" class="form-input">
+              </div>
+              <div class="expense-form-group">
+                <label>支出类别 *</label>
+                <select id="expenseCategory" class="form-input">
+                  <option value="office">办公用品</option>
+                  <option value="travel">差旅费</option>
+                  <option value="meal">业务招待</option>
+                  <option value="service">服务外包</option>
+                  <option value="material">材料采购</option>
+                  <option value="other">其他支出</option>
+                </select>
+              </div>
+              <div class="expense-form-group">
+                <label>金额（元）*</label>
+                <input type="number" id="expenseAmount" class="form-input" placeholder="0.00">
+              </div>
+              <div class="expense-form-group">
+                <label>经手人 *</label>
+                <input type="text" id="expenseHandler" class="form-input" placeholder="经办人姓名">
+              </div>
+            </div>
+            <div class="expense-form-group" style="margin-bottom:0;">
+              <label>支出说明</label>
+              <input type="text" id="expenseNote" class="form-input" placeholder="请详细描述支出用途...">
+            </div>
+            <button class="btn btn-success" onclick="addExpense()" style="width:auto;margin-top:16px;">确认添加</button>
+          </div>
+
+          <table class="expense-table">
+            <thead>
+              <tr>
+                <th>日期</th>
+                <th>类别</th>
+                <th>金额</th>
+                <th>经手人</th>
+                <th>说明</th>
+                <th style="text-align:center;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="costList"></tbody>
+          </table>
+          <div style="margin-top:20px;padding:16px;background:#fef2f2;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:600;color:#7f1d1d;">支出合计</span>
+            <span id="totalExpense" style="font-size:20px;font-weight:700;color:#dc2626;">¥0.00</span>
+          </div>
+        </div>
+
+        <button class="btn btn-danger" onclick="deleteProject()" style="margin-top:20px;">⚠️ 删除此项目</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 安全验证弹窗 -->
+<div class="modal" id="securityModal">
+  <div class="modal-box">
+    <h3>🔒 安全验证</h3>
+    <p style="margin-bottom:16px;color:#64748b;font-size:14px;">访问记账系统需要验证您的安全密码</p>
+    <input type="password" class="form-input" id="securityPwd" placeholder="请输入安全密码">
+    <div style="display:flex;gap:12px;margin-top:24px;">
+      <button class="btn btn-success" onclick="verifySecurity()" style="flex:1;">验证</button>
+      <button class="btn btn-secondary" onclick="closeSecurityModal()" style="flex:1;">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 创建项目弹窗 -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3>创建新项目</h3>
+    <div class="form-group">
+      <label>项目名称 *</label>
+      <input class="form-input" id="projectName" placeholder="请输入项目名称">
+    </div>
+    <div class="form-group">
+      <label>项目负责人 *</label>
+      <input class="form-input" id="projectLeader" placeholder="请输入负责人姓名">
+    </div>
+    <div class="form-group">
+      <label>启动日期 *</label>
+      <input class="form-input" id="projectDate" type="date">
+    </div>
+    <div class="form-group">
+      <label>项目预算</label>
+      <input class="form-input" id="projectBudget" type="number" placeholder="0.00（元）">
+    </div>
+    <div style="display:flex;gap:12px;margin-top:24px;">
+      <button class="btn" onclick="createProject()" style="flex:1;">创建项目</button>
+      <button class="btn btn-secondary" onclick="hideModal()" style="flex:1;">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑用户弹窗（详细版） -->
+<div class="modal" id="editUserModal">
+  <div class="modal-box" style="max-width:600px;">
+    <h3>👤 编辑用户资料</h3>
+    <input type="hidden" id="editUserId">
+
+    <div class="user-form-grid">
+      <div class="form-group">
+        <label>登录账号 *</label>
+        <input class="form-input" id="editUserName" placeholder="用户名">
+        <div class="form-hint">用户登录系统的唯一标识，不可重复</div>
+      </div>
+      <div class="form-group">
+        <label>登录密码 *</label>
+        <input class="form-input" id="editUserPwd" placeholder="密码">
+        <div class="form-hint">建议设置6位以上包含字母和数字的密码</div>
+      </div>
+    </div>
+
+    <div class="user-form-grid">
+      <div class="form-group">
+        <label>权限角色 *</label>
+        <select class="form-input" id="editUserPerm">
+          <option value="user">👤 普通用户 - 仅能查看和编辑自己负责的项目</option>
+          <option value="finance">💰 财务人员 - 可访问记账系统和查看财务报表</option>
+          <option value="admin">🔒 管理员 - 拥有系统的所有操作权限</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>安全密码（记账验证用）</label>
+        <input class="form-input" id="editSecurityPwd" placeholder="访问记账功能时的验证密码">
+        <div class="form-hint">仅财务和管理员需要设置，普通用户可留空</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>人员备注</label>
+      <input class="form-input" id="editUserRemark" placeholder="例如：部门、职位、联系方式等">
+    </div>
+
+    <div id="editUserExtraInfo" style="background:#f8fafc;padding:16px;border-radius:8px;margin-bottom:20px;display:none;">
+      <div style="font-size:13px;color:#64748b;margin-bottom:8px;">账号信息</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;">
+        <div>创建时间：<span id="editUserCreateTime" style="color:#334155;font-weight:600;">-</span></div>
+        <div>用户ID：<span id="editUserRealId" style="color:#334155;font-weight:600;">-</span></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;">
+      <button class="btn btn-success" onclick="saveEditUser()" style="flex:1;">💾 保存修改</button>
+      <button class="btn btn-secondary" onclick="hideEditUserModal()" style="flex:1;">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新增用户弹窗 -->
+<div class="modal" id="addUserModal">
+  <div class="modal-box" style="max-width:600px;">
+    <h3>➕ 新增系统用户</h3>
+    <p style="margin-bottom:20px;color:#64748b;font-size:14px;">请填写新用户的详细信息，创建后用户即可登录系统。</p>
+
+    <div class="user-form-grid">
+      <div class="form-group">
+        <label>登录账号 *</label>
+        <input class="form-input" id="newUserName" placeholder="建议用英文名或拼音">
+        <div class="form-hint">必填，登录系统的用户名，不可重复</div>
+      </div>
+      <div class="form-group">
+        <label>初始密码 *</label>
+        <input class="form-input" id="newUserPwd" value="123456" placeholder="初始密码">
+        <div class="form-hint">创建后请告知用户及时修改密码</div>
+      </div>
+    </div>
+
+    <div class="user-form-grid">
+      <div class="form-group">
+        <label>权限角色 *</label>
+        <select class="form-input" id="newUserPerm">
+          <option value="user">👤 普通用户</option>
+          <option value="finance">💰 财务人员</option>
+          <option value="admin">🔒 管理员</option>
+        </select>
+        <div class="form-hint">决定用户在系统中的操作权限范围</div>
+      </div>
+      <div class="form-group">
+        <label>安全密码</label>
+        <input class="form-input" id="newSecurityPwd" placeholder="记账功能验证密码">
+        <div class="form-hint">财务和管理员必填，普通用户可留空</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>人员备注</label>
+      <input class="form-input" id="newUserRemark" placeholder="例如：市场部-张三，负责项目管理">
+      <div class="form-hint">可用于记录部门、职位、职责等信息</div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:24px;">
+      <button class="btn btn-success" onclick="saveNewUser()" style="flex:1;">✓ 确认创建</button>
+      <button class="btn btn-secondary" onclick="hideAddUserModal()" style="flex:1;">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let DB = {
+  users: [{ 
+    id: 1, 
+    name: 'Admin', 
+    pwd: '123456', 
+    permission: 'admin', 
+    remark: '系统超级管理员，拥有所有权限',
+    securityPwd: '888888',
+    isSystem: true,
+    createTime: '2026-01-01 09:00:00'
+  }],
+  projects: [],
+  recycleBin: [],
+  transactions: []
+};
+
+let currentUser=null,currentCate='lm',curProjectId=null,securityVerified=false;
+
+// 存储
+function loadDB(){
+  const s=localStorage.getItem('PROJECT_DB_V2');
+  if(s){
+    try{
+      const loaded = JSON.parse(s);
+      DB = {...DB, ...loaded};
+      if(!DB.transactions) DB.transactions = [];
+    }catch(e){
+      console.error('加载数据库失败:',e);
+    }
+  }
+}
+function saveDB(){
+  try{
+    localStorage.setItem('PROJECT_DB_V2',JSON.stringify(DB));
+  }catch(e){
+    console.error('保存数据库失败:',e);
+    alert('保存失败，可能是存储空间不足');
+  }
+}
+loadDB();
+
+// 登录
+function userLogin(){
+  const n=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPwd').value.trim();
+  if(!n||!p)return alert('请输入用户名和密码');
+
+  const u=DB.users.find(x=>x.name.toLowerCase()===n.toLowerCase()&&x.pwd===p);
+  if(!u)return alert('账号或密码错误，请重试');
+
+  currentUser=u;
+  const roleText=u.permission==='admin'?'管理员':u.permission==='finance'?'财务':'普通用户';
+  document.getElementById('currentUserDisplay').innerText=`👤 ${u.name}（${roleText}）`;
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('mainPage').style.display='block';
+  goBusiness('lm');
+  showToast(`✓ 欢迎回来，${u.name}！`);
+}
+function logout(){
+  if(confirm('确定要退出系统吗？')){
+    location.reload();
+  }
+}
+
+// 页面导航
+function go(page){
+  document.querySelectorAll('.sidebar-menu a').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.page-block').forEach(x=>x.style.display='none');
+
+  if(page==='businessPage'){
+    document.getElementById('businessPage').style.display='block';
+    renderProjects();
+  }
+  if(page==='accountingPage'){
+    document.getElementById('nav-accounting').classList.add('active');
+    document.getElementById('accountingPage').style.display='block';
+    initAccounting();
+  }
+  if(page==='recyclePage'){
+    document.getElementById('nav-recycle').classList.add('active');
+    document.getElementById('recyclePage').style.display='block';
+    renderRecycle();
+  }
+  if(page==='userPage'){
+    document.getElementById('nav-user').classList.add('active');
+    document.getElementById('userPage').style.display='block';
+    renderUsers();
+  }
+}
+function goBusiness(cate){
+  currentCate=cate;
+  const titleMap={'lm':'🎪 朗鸣会展','ch':'🏢 创河企服'};
+  const titleEl=document.getElementById('businessTitle');
+  if(titleEl)titleEl.innerText=titleMap[cate]||'业务页面';
+  go('businessPage');
+}
+
+// 记账功能权限检查
+function checkAccountingAccess(){
+  if(currentUser.permission!=='admin'&&currentUser.permission!=='finance'){
+    alert('⚠️ 权限不足：仅管理员和财务人员可访问记账系统');
+    return;
+  }
+  document.getElementById('securityModal').style.display='flex';
+}
+function verifySecurity(){
+  const p=document.getElementById('securityPwd').value;
+  if(p!==currentUser.securityPwd){
+    alert('安全密码错误，无法访问记账系统');
+    return;
+  }
+  securityVerified=true;
+  closeSecurityModal();
+  go('accountingPage');
+}
+function closeSecurityModal(){
+  document.getElementById('securityModal').style.display='none';
+  document.getElementById('securityPwd').value='';
+}
+
+// 商务记账系统
+function initAccounting(){
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('transDate').value=today;
+  document.getElementById('transHandler').value=currentUser.name;
+  document.getElementById('filterMonth').value=today.substring(0,7);
+  renderTransactions();
+}
+
+function addTransaction(){
+  const type=document.getElementById('transType').value;
+  const date=document.getElementById('transDate').value;
+  const category=document.getElementById('transCategory').value;
+  const amount=parseFloat(document.getElementById('transAmount').value);
+  const handler=document.getElementById('transHandler').value.trim();
+  const note=document.getElementById('transNote').value.trim();
+
+  if(!date||!amount||amount<=0||!handler){
+    alert('请填写完整的交易信息（日期、金额、经手人必填）');
+    return;
+  }
+
+  const categoryMap={
+    'sales':'销售收入','service':'服务收入','other_income':'其他收入',
+    'purchase':'采购支出','salary':'工资薪金','rent':'房租水电',
+    'office':'办公费用','travel':'差旅交通','meal':'业务招待','other_expense':'其他支出'
+  };
+
+  const transaction={
+    id:Date.now(),
+    type,
+    date,
+    category,
+    categoryName:categoryMap[category],
+    amount,
+    handler,
+    note,
+    createTime:new Date().toLocaleString()
+  };
+
+  DB.transactions.push(transaction);
+  saveDB();
+  renderTransactions();
+
+  // 重置表单
+  document.getElementById('transAmount').value='';
+  document.getElementById('transNote').value='';
+  showToast('✓ 记账成功！');
+}
+
+function renderTransactions(){
+  const filterMonth=document.getElementById('filterMonth').value;
+  const filterType=document.querySelector('.filter-btn.active')?.dataset?.type||'all';
+
+  let list=DB.transactions.filter(t=>t.date.startsWith(filterMonth));
+  if(filterType!=='all'){
+    list=list.filter(t=>t.type===filterType);
+  }
+  list.sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  // 统计
+  let income=0,expense=0;
+  DB.transactions.filter(t=>t.date.startsWith(filterMonth)).forEach(t=>{
+    if(t.type==='income')income+=t.amount;
+    else expense+=t.amount;
+  });
+  document.getElementById('statIncome').innerText='¥'+income.toFixed(2);
+  document.getElementById('statExpense').innerText='¥'+expense.toFixed(2);
+  document.getElementById('statProfit').innerText='¥'+(income-expense).toFixed(2);
+  document.getElementById('accountingPeriod').innerText=filterMonth.replace('-','年')+'月';
+
+  const tbody=document.getElementById('transactionList');
+  if(list.length===0){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:#94a3b8;">暂无记录</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML=list.map(t=>`
+    <tr>
+      <td>${t.date}</td>
+      <td><span class="type-badge ${t.type==='income'?'type-income':'type-expense'}">${t.type==='income'?'收入':'支出'}</span></td>
+      <td>${t.categoryName}</td>
+      <td class="${t.type==='income'?'amount-income':'amount-expense'}">${t.type==='income'?'+':'-'}¥${t.amount.toFixed(2)}</td>
+      <td>${t.handler}</td>
+      <td>${t.note||'-'}</td>
+      <td style="text-align:center;"><button class="btn btn-sm btn-danger" onclick="deleteTransaction(${t.id})">删除</button></td>
+    </tr>
+  `).join('');
+}
+
+function filterTransactions(type){
+  document.querySelectorAll('.filter-btn').forEach(btn=>{
+    btn.classList.remove('active');
+    if(btn.dataset.type===type)btn.classList.add('active');
+  });
+  document.querySelector('.filter-btn[data-type="'+type+'"]')?.classList.add('active');
+  renderTransactions();
+}
+
+function deleteTransaction(id){
+  if(!confirm('确定删除这条记录吗？'))return;
+  DB.transactions=DB.transactions.filter(t=>t.id!==id);
+  saveDB();
+  renderTransactions();
+}
+
+// 项目功能
+function renderProjects(){
+  const list=DB.projects.filter(p=>p.cate===currentCate);
+  let h='';
+  list.forEach(p=>{
+    const t=(p.costs||[]).reduce((s,c)=>s+Number(c.amount),0);
+    const fileCount=(p.files||[]).length;
+    h+=`
+      <div class='project-item' onclick='openProject(${p.id})'>
+        <div>
+          <div style="font-weight:700;font-size:16px;color:#1e293b;margin-bottom:4px;">${p.name}</div>
+          <div class="project-meta">
+            <span>👤 ${p.leader}</span> · <span>📅 ${p.date}</span> · <span>📁 ${fileCount}个文件</span>
+          </div>
+        </div>
+        <div class="project-amount">¥${t.toFixed(2)}</div>
+      </div>
+    `;
+  });
+  if(!h)h='<div style="padding:60px;text-align:center;color:#94a3b8;background:#f8fafc;border-radius:12px;border:2px dashed #e2e8f0;"><div style="font-size:48px;margin-bottom:12px;">📁</div><div>暂无项目，点击上方按钮创建</div></div>';
+  document.getElementById('projectList').innerHTML=h;
+}
+
+function openProject(id){
+  curProjectId=id;
+  const p=DB.projects.find(x=>x.id===id);
+  document.getElementById('detailTitle').innerText=p.name;
+  document.getElementById('detailInfo').innerText=`负责人：${p.leader}｜启动日期：${p.date}${p.budget?'｜预算：¥'+Number(p.budget).toFixed(2):''}`;
+  renderFiles(p.files||[]);
+  renderCosts(p.costs||[]);
+  document.getElementById('businessPage').style.display='none';
+  document.getElementById('detailPage').style.display='block';
+}
+
+function showModal(){
+  document.getElementById('projectDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('modal').style.display='flex';
+}
+function hideModal(){
+  document.getElementById('modal').style.display='none';
+  document.getElementById('projectName').value='';
+  document.getElementById('projectLeader').value='';
+  document.getElementById('projectBudget').value='';
+}
+
+function createProject(){
+  const n=document.getElementById('projectName').value.trim();
+  const l=document.getElementById('projectLeader').value.trim();
+  const d=document.getElementById('projectDate').value;
+  const b=document.getElementById('projectBudget').value;
+
+  if(!n||!l||!d)return alert('请填写完整的项目信息（名称、负责人、日期必填）');
+
+  DB.projects.push({
+    id:Date.now(),
+    cate:currentCate,
+    name:n,
+    leader:l,
+    date:d,
+    budget:b,
+    files:[],
+    costs:[]
+  });
+  saveDB();
+  renderProjects();
+  hideModal();
+  showToast('✓ 项目创建成功！');
+}
+
+function deleteProject(){
+  if(!confirm('确定将此项目移至回收站吗？'))return;
+  const i=DB.projects.findIndex(x=>x.id===curProjectId);
+  if(i>-1){
+    DB.recycleBin.push(DB.projects[i]);
+    DB.projects.splice(i,1);
+    saveDB();
+    go('businessPage');
+    showToast('项目已移至回收站');
+  }
+}
+
+// 文件管理（含下载功能）
+function uploadFiles(){
+  const f=document.getElementById('fileInput').files;
+  if(!f.length)return;
+  const p=DB.projects.find(x=>x.id===curProjectId);
+
+  Array.from(f).forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      p.files.push({
+        name:file.name,
+        size:(file.size/1024).toFixed(1)+'KB',
+        url:e.target.result,
+        time:new Date().toLocaleString()
+      });
+      saveDB();
+      renderFiles(p.files);
+      showToast('✓ 文件上传成功');
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+function renderFiles(list){
+  const tbody=document.getElementById('fileList');
+  if(list.length===0){
+    tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:40px;color:#94a3b8;">暂无文件</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML=list.map((f,i)=>{
+    const ext=f.name.split('.').pop().toLowerCase();
+    const iconMap={
+      pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',ppt:'📽️',pptx:'📽️',
+      jpg:'🖼️',jpeg:'🖼️',png:'🖼️',gif:'🖼️',zip:'📦',rar:'📦'
+    };
+    return `
+      <tr>
+        <td><div class="file-icon">${iconMap[ext]||'📎'}</div></td>
+        <td>
+          <div class="file-name">${f.name}</div>
+        </td>
+        <td class="file-size">${f.size}</td>
+        <td class="text-sm">${f.time}</td>
+        <td style="text-align:center;">
+          <div class="file-actions">
+            <a href="${f.url}" download="${f.name}" class="btn btn-sm btn-success" title="下载">⬇️ 下载</a>
+            <a href="${f.url}" target="_blank" class="btn btn-sm btn-info" title="查看">👁️ 查看</a>
+            <button class="btn btn-sm btn-danger" onclick="delFile(${i})" title="删除">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function delFile(i){
+  if(!confirm('确定删除此文件吗？'))return;
+  const p=DB.projects.find(x=>x.id===curProjectId);
+  p.files.splice(i,1);
+  saveDB();
+  renderFiles(p.files);
+}
+
+// 支出管理
+function addExpense(){
+  const date=document.getElementById('expenseDate').value;
+  const category=document.getElementById('expenseCategory').value;
+  const amount=parseFloat(document.getElementById('expenseAmount').value);
+  const handler=document.getElementById('expenseHandler').value.trim();
+  const note=document.getElementById('expenseNote').value.trim();
+
+  if(!date||!amount||amount<=0||!handler){
+    alert('请填写完整的支出信息（日期、金额、经手人必填）');
+    return;
+  }
+
+  const categoryMap={
+    office:'办公用品',travel:'差旅费',meal:'业务招待',
+    service:'服务外包',material:'材料采购',other:'其他支出'
+  };
+
+  const p=DB.projects.find(x=>x.id===curProjectId);
+  p.costs.push({
+    id:Date.now(),
+    date,
+    category,
+    categoryName:categoryMap[category],
+    amount,
+    handler,
+    note
+  });
+  saveDB();
+  renderCosts(p.costs);
+
+  // 重置表单
+  document.getElementById('expenseAmount').value='';
+  document.getElementById('expenseNote').value='';
+  showToast('✓ 支出记录已添加');
+}
+
+function renderCosts(list){
+  const tbody=document.getElementById('costList');
+  let total=0;
+
+  if(list.length===0){
+    tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:40px;color:#94a3b8;">暂无支出记录</td></tr>';
+  }else{
+    tbody.innerHTML=list.map((c,i)=>{
+      total+=Number(c.amount);
+      return `
+        <tr>
+          <td>${c.date}</td>
+          <td><span class="expense-category expense-category-${c.category}">${c.categoryName}</span></td>
+          <td class="expense-amount">¥${Number(c.amount).toFixed(2)}</td>
+          <td>${c.handler}</td>
+          <td>${c.note||'-'}</td>
+          <td style="text-align:center;"><button class="btn btn-sm btn-danger" onclick="delCost(${i})">删除</button></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('totalExpense').innerText='¥'+total.toFixed(2);
+}
+
+function delCost(i){
+  if(!confirm('确定删除这条支出记录吗？'))return;
+  const p=DB.projects.find(x=>x.id===curProjectId);
+  p.costs.splice(i,1);
+  saveDB();
+  renderCosts(p.costs);
+}
+
+// 回收站
+function renderRecycle(){
+  const r=DB.recycleBin;
+  let h='';
+  r.forEach((x,i)=>{
+    h+=`
+      <div style="padding:16px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <div style="font-weight:700;color:#92400e;margin-bottom:4px;">${x.name}</div>
+          <div class="text-sm">${x.leader}｜${x.date}</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-sm btn-success" onclick="restore(${i})">↩️ 恢复</button>
+          <button class="btn btn-sm btn-danger" onclick="delForever(${i})">永久删除</button>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById('recycleList').innerHTML=h||'<div style="padding:60px;text-align:center;color:#94a3b8;"><div style="font-size:48px;margin-bottom:12px;">🗑️</div><div>回收站是空的</div></div>';
+}
+
+function restore(i){
+  DB.projects.push(DB.recycleBin[i]);
+  DB.recycleBin.splice(i,1);
+  saveDB();
+  renderRecycle();
+  showToast('✓ 项目已恢复');
+}
+function delForever(i){
+  if(!confirm('⚠️ 警告：此操作不可撤销，确定永久删除该项目吗？'))return;
+  DB.recycleBin.splice(i,1);
+  saveDB();
+  renderRecycle();
+}
+
+// 用户管理（权限控制优化）
+function renderUsers(){
+  let h='<div class="user-grid">';
+  DB.users.forEach(u=>{
+    const roleClass=u.permission==='admin'?'role-admin':u.permission==='finance'?'role-finance':'role-user';
+    const roleText=u.permission==='admin'?'🔒 管理员':u.permission==='finance'?'💰 财务':'👤 普通用户';
+    const avatar=u.name.charAt(0).toUpperCase();
+    const isSystem=u.isSystem;
+    const canEdit=currentUser.permission==='admin';
+
+    h+=`
+      <div class="user-card">
+        <div class="user-card-header">
+          <div class="user-info">
+            <div class="user-avatar">${avatar}</div>
+            <div class="user-meta">
+              <div class="user-name">${u.name}</div>
+              <span class="user-role ${roleClass}">${roleText}</span>
+            </div>
+          </div>
+        </div>
+        <div class="user-details">
+          <div class="user-detail-item">
+            <span class="user-detail-label">用户ID</span>
+            <span class="user-detail-value">#${u.id}</span>
+          </div>
+          <div class="user-detail-item">
+            <span class="user-detail-label">创建时间</span>
+            <span class="user-detail-value">${u.createTime||'-'}</span>
+          </div>
+          <div class="user-detail-item">
+            <span class="user-detail-label">安全密码</span>
+            <span class="user-detail-value">${u.securityPwd?'已设置':'未设置'}</span>
+          </div>
+          <div class="user-detail-item" style="flex-direction:column;align-items:flex-start;gap:4px;">
+            <span class="user-detail-label">备注</span>
+            <span class="user-detail-value" style="color:#64748b;font-weight:500;">${u.remark||'无备注'}</span>
+          </div>
+        </div>
+        <div class="user-actions">
+          ${canEdit?`
+            <button class="action-btn btn-edit" onclick="editUser(${u.id})">
+              ✏️ 编辑资料
+            </button>
+          `:`
+            <button class="action-btn btn-disabled" onclick="alert('⚠️ 权限不足：仅管理员可编辑用户资料')">
+              🔒 无权限编辑
+            </button>
+          `}
+          ${canEdit&&!isSystem?`
+            <button class="action-btn btn-delete" onclick="delUser(${u.id})">
+              🗑️ 删除账号
+            </button>
+          `:`
+            <button class="action-btn btn-disabled">
+              ${isSystem?'🔒 系统保护':'🔒 无权限删除'}
+            </button>
+          `}
+        </div>
+      </div>
+    `;
+  });
+  h+='</div>';
+  document.getElementById('userList').innerHTML=h;
+}
+
+// 新增用户（优化版）
+function showAddUserModal(){
+  if(currentUser.permission!=='admin'){
+    alert('⚠️ 权限不足：仅管理员可添加新用户');
+    return;
+  }
+  document.getElementById('addUserModal').style.display='flex';
+}
+function hideAddUserModal(){
+  document.getElementById('addUserModal').style.display='none';
+  document.getElementById('newUserName').value='';
+  document.getElementById('newUserPwd').value='123456';
+  document.getElementById('newUserPerm').value='user';
+  document.getElementById('newSecurityPwd').value='';
+  document.getElementById('newUserRemark').value='';
+}
+function saveNewUser(){
+  const name=document.getElementById('newUserName').value.trim();
+  const pwd=document.getElementById('newUserPwd').value.trim();
+  const perm=document.getElementById('newUserPerm').value;
+  const secPwd=document.getElementById('newSecurityPwd').value.trim();
+  const remark=document.getElementById('newUserRemark').value.trim();
+
+  if(!name||!pwd)return alert('账号和密码不能为空');
+  if(DB.users.find(u=>u.name.toLowerCase()===name.toLowerCase()))return alert('该账号已存在');
+  if((perm==='admin'||perm==='finance')&&!secPwd)return alert('管理员和财务人员必须设置安全密码');
+
+  DB.users.push({
+    id:Date.now(),
+    name,
+    pwd,
+    permission:perm,
+    remark,
+    securityPwd:secPwd,
+    isSystem:false,
+    createTime:new Date().toLocaleString()
+  });
+  saveDB();
+  renderUsers();
+  hideAddUserModal();
+  showToast('✓ 新用户创建成功');
+}
+
+// 编辑用户（详细版）
+function editUser(id){
+  // 权限检查
+  if(currentUser.permission!=='admin'){
+    alert('⚠️ 权限不足：仅管理员可编辑用户资料');
+    return;
+  }
+
+  const u=DB.users.find(x=>x.id===id);
+  if(!u)return;
+
+  document.getElementById('editUserId').value=u.id;
+  document.getElementById('editUserName').value=u.name;
+  document.getElementById('editUserPwd').value=u.pwd;
+  document.getElementById('editUserRemark').value=u.remark||'';
+  document.getElementById('editUserPerm').value=u.permission;
+  document.getElementById('editSecurityPwd').value=u.securityPwd||'';
+
+  // 显示额外信息
+  document.getElementById('editUserExtraInfo').style.display='block';
+  document.getElementById('editUserCreateTime').innerText=u.createTime||'-';
+  document.getElementById('editUserRealId').innerText='#'+u.id;
+
+  document.getElementById('editUserModal').style.display='flex';
+}
+function saveEditUser(){
+  const id=parseInt(document.getElementById('editUserId').value);
+  const u=DB.users.find(x=>x.id===id);
+  if(!u)return;
+
+  const newName=document.getElementById('editUserName').value.trim();
+  const newPwd=document.getElementById('editUserPwd').value.trim();
+  const newPerm=document.getElementById('editUserPerm').value;
+  const newSecPwd=document.getElementById('editSecurityPwd').value.trim();
+  const newRemark=document.getElementById('editUserRemark').value.trim();
+
+  if(!newName||!newPwd)return alert('账号和密码不能为空');
+  if((newPerm==='admin'||newPerm==='finance')&&!newSecPwd)return alert('管理员和财务人员必须设置安全密码');
+
+  // 检查是否改名且是否重复
+  if(newName.toLowerCase()!==u.name.toLowerCase()&&DB.users.find(x=>x.name.toLowerCase()===newName.toLowerCase())){
+    return alert('该账号名称已被使用');
+  }
+
+  u.name=newName;
+  u.pwd=newPwd;
+  u.permission=newPerm;
+  u.remark=newRemark;
+  u.securityPwd=newSecPwd;
+
+  saveDB();
+  renderUsers();
+  hideEditUserModal();
+  showToast('✓ 用户资料已更新');
+}
+function hideEditUserModal(){
+  document.getElementById('editUserModal').style.display='none';
+  document.getElementById('editUserExtraInfo').style.display='none';
+}
+function delUser(id){
+  if(currentUser.permission!=='admin')return alert('⚠️ 权限不足');
+  const u=DB.users.find(x=>x.id===id);
+  if(u.isSystem)return alert('系统管理员无法删除');
+  if(!confirm('确定删除该用户吗？此操作不可撤销。'))return;
+  DB.users=DB.users.filter(x=>x.id!==id);
+  saveDB();
+  renderUsers();
+  showToast('✓ 用户已删除');
+}
+
+// Toast提示
+function showToast(msg){
+  const t=document.createElement('div');
+  t.innerText=msg;
+  t.style.cssText='position:fixed;top:24px;right:24px;background:#059669;color:white;padding:14px 24px;border-radius:10px;box-shadow:0 10px 15px -3px rgba(0,0,0,0.2);z-index:9999;font-weight:600;animation:slideIn 0.3s ease;';
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity 0.3s';setTimeout(()=>t.remove(),300);},2500);
+}
+
+// 添加动画样式
+const style=document.createElement('style');
+style.innerHTML='@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>
